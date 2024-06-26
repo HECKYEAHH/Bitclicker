@@ -15,9 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const upgrades = [
         createUpgrade('clicker', ".basicbitcost", ".clicker-level", ".clicker-increase", 1.03, 1.12, 10, 1),
-        createUpgrade('basicBitFarm', ".basicbitfarm", ".basicbitfarm-level", ".basicbitfarm-increase", 1.03, 1.115, 150, 1),
-        createUpgrade('basicLogicGate', ".basiclogicgate", ".basiclogicgate-level", ".basiclogicgate-increase", 1.035, 1.11, 850, 1),
-        createUpgrade('RAM Stick', ".ramStick", ".ramStick-level", ".ramStick-increase", 1.04, 1.10, 4750, 1)
+        createUpgrade('basicBitFarm', ".basicbitfarm", ".basicbitfarm-level", ".basicbitfarm-increase", 1.03, 1.115, 150, 4),
+        createUpgrade('basicLogicGate', ".basiclogicgate", ".basiclogicgate-level", ".basiclogicgate-increase", 1.035, 1.11, 850, 24),
+        createUpgrade('RAM Stick', ".ramStick", ".ramStick-level", ".ramStick-increase", 1.04, 1.10, 4750, 82)
     ];
 
     const achievements = [
