@@ -142,6 +142,13 @@ body {
     align-items: center;
 }
 
+.top-bar .center-section {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .top-bar button, .top-bar .discord-link {
     background-color: #444;
     color: white;
@@ -298,6 +305,7 @@ body {
 .menu-content button:hover {
     background-color: #666;
 }
+
 /* Achievements popup styling */
 #achievementsPopup .menu-content {
     align-items: flex-start;
@@ -347,6 +355,7 @@ body {
     z-index: 1001;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
+
 .tooltip {
     display: none;
     position: absolute;
@@ -363,4 +372,41 @@ body {
 
 .achievement-item:hover .tooltip {
     display: block;
+}
+
+/* Leaderboard styling */
+#leaderboard {
+    width: 80%;
+    max-width: 800px;
+    text-align: center;
+    background-color: #ffffff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    max-height: 60vh; /* Added this */
+    overflow-y: auto; /* Added this */
+}
+
+#leaderboard h3 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+#leaderboard table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+
+#leaderboard table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background-color: #f2f2f2;
 }
