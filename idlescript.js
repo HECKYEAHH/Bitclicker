@@ -1,4 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
+    const username = localStorage.getItem('username');
+    if (!username) {
+        window.location.href = 'index.html'; // Redirect back to login if no username
+    }
+
+    document.getElementById('usernameDisplay').textContent = username;
+
     const bit = document.querySelector('.bit-cost');
     const bpcText = document.getElementById("bpc-text");
     const bpsText = document.getElementById("bps-text");
@@ -31,6 +38,75 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeEventListeners();
     initializeMenuButtons();
     setInterval(updateGame, 100);
+
+    // Sample leaderboard data
+    const leaderboardData = [
+        { name: 'John Doe', totalEarnings: 100000, totalClicks: 1000, totalRebirths: 10, totalUpgrades: 50 },
+        { name: 'Jane Smith', totalEarnings: 95000, totalClicks: 900, totalRebirths: 9, totalUpgrades: 45 },
+        { name: 'Emily Johnson', totalEarnings: 90000, totalClicks: 800, totalRebirths: 8, totalUpgrades: 40 }
+    ];
+
+    // Function to save leaderboard data to local storage
+    function saveLeaderboard(data) {
+        localStorage.setItem('leaderboard', JSON.stringify(data));
+    }
+
+    // Function to load leaderboard data from local storage
+    function loadLeaderboard() {
+        const data = localStorage.getItem('leaderboard');
+        return data ? JSON.parse(data) : [];
+    }
+
+    // Function to update leaderboard UI
+    function updateLeaderboardUI() {
+        const leaderboard = loadLeaderboard();
+        const leaderboardEntries = document.getElementById('leaderboard-entries');
+        leaderboardEntries.innerHTML = '';
+
+        leaderboard.sort((a, b) => b.totalEarnings - a.totalEarnings);
+
+        leaderboard.forEach((entry, index) => {
+            const row = document.createElement('tr');
+            const rankCell = document.createElement('td');
+            const nameCell = document.createElement('td');
+            const totalEarningsCell = document.createElement('td');
+            const totalClicksCell = document.createElement('td');
+            const totalRebirthsCell = document.createElement('td');
+            const totalUpgradesCell = document.createElement('td');
+
+            rankCell.textContent = index + 1;
+            nameCell.textContent = entry.name;
+            totalEarningsCell.textContent = entry.totalEarnings;
+            totalClicksCell.textContent = entry.totalClicks;
+            totalRebirthsCell.textContent = entry.totalRebirths;
+            totalUpgradesCell.textContent = entry.totalUpgrades;
+
+            row.appendChild(rankCell);
+            row.appendChild(nameCell);
+            row.appendChild(totalEarningsCell);
+            row.appendChild(totalClicksCell);
+            row.appendChild(totalRebirthsCell);
+            row.appendChild(totalUpgradesCell);
+
+            leaderboardEntries.appendChild(row);
+        });
+    }
+
+    // Initialize leaderboard with sample data (if not already initialized)
+    if (!localStorage.getItem('leaderboard')) {
+        saveLeaderboard(leaderboardData);
+    }
+
+    // Update the leaderboard UI on page load
+    document.addEventListener('DOMContentLoaded', updateLeaderboardUI);
+
+    // Example function to add a new score (you can call this function to update the leaderboard)
+    function addScore(name, totalEarnings, totalClicks, totalRebirths, totalUpgrades) {
+        const leaderboard = loadLeaderboard();
+        leaderboard.push({ name, totalEarnings, totalClicks, totalRebirths, totalUpgrades });
+        saveLeaderboard(leaderboard);
+        updateLeaderboardUI();
+    }
 
     function createUpgrade(name, costSelector, levelSelector, increaseSelector, bitMultiplier, costMultiplier, initialCost, initialIncrease) {
         return {
@@ -103,6 +179,15 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 importGameState(importTextarea.value);
             }, 100); // Delay to ensure the pasted content is available
+        });
+
+        document.getElementById('leaderboardsButton').addEventListener('click', () => {
+            document.getElementById('leaderboard').style.display = 'flex';
+            updateLeaderboardUI();
+        });
+
+        document.getElementById('closeLeaderboard').addEventListener('click', () => {
+            document.getElementById('leaderboard').style.display = 'none';
         });
     }
 

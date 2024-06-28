@@ -12,8 +12,11 @@
             <button id="menuButton">Menu</button>
             <a href="https://discord.gg/z4VfD3P6PE" target="_blank" class="discord-link">Discord</a>
         </div>
+        <div class="center-section">
+            <span id="usernameDisplay"></span>
+        </div>
         <div class="right-section">
-            <button>Leaderboards</button>
+            <button id="leaderboardsButton">Leaderboards</button>
             <button id="profileButton">Profile</button>
         </div>
     </div>
@@ -95,6 +98,28 @@
             <h3>Import Save Data</h3>
             <textarea id="importTextarea" rows="10" cols="50"></textarea>
             <button id="closeImportMenu">Close</button>
+        </div>
+    </div>
+
+    <div id="leaderboard" class="menu-popup">
+        <div class="menu-content">
+            <h3>Leaderboard</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Total Earnings</th>
+                        <th>Total Clicks</th>
+                        <th>Total Rebirths</th>
+                        <th>Total Upgrades</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-entries">
+                    <!-- Leaderboard entries will be dynamically populated here -->
+                </tbody>
+            </table>
+            <button id="closeLeaderboard">Close</button>
         </div>
     </div>
 
