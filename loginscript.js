@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function fetchUsers() {
         try {
-            const response = await fetch('users.json', {
+            const response = await fetch(`users.json?timestamp=${new Date().getTime()}`, {
                 headers: {
                     'Cache-Control': 'no-cache'
                 }
@@ -21,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return [];
         }
     }
+    
     async function updateUserFile(users) {
         let token = localStorage.getItem('GH_TOKEN');
         if (!token) {
@@ -72,26 +73,47 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
 
-    loginForm.addEventListener('submit', async function(event) {
+    signupForm.addEventListener('submit', async function(event) {
         event.preventDefault();
-        const username = document.getElementById('login-username').value.trim();
-        const password = document.getElementById('login-password').value.trim();
-
+        const username = document.getElementById('signup-username').value.trim();
+        const password = document.getElementById('signup-password').value.trim();
+    
         if (!username || !password) {
             alert('Username and password cannot be empty.');
             return;
         }
-
+    
         const users = await fetchUsers();
-        console.log('Users for login:', users);
-        const user = users.find(user => user.username === username && user.password === password);
-        console.log('Login user:', user);
-
-        if (user) {
-            localStorage.setItem('username', username);
-            window.location.href = 'idle.html'; // Redirect to the BitClicker game page
+        console.log('Users for signup:', users);
+        const userExists = users.some(user => user.username === username);
+    
+        if (userExists) {
+            alert('Username already exists. Please choose a different username.');
         } else {
-            alert('Invalid username or password.');
+            const newUser = { username, password };
+            users.push(newUser);
+            console.log('New user added:', newUser);
+            console.log('Updated users list before update:', users);
+    
+            // Indicate to the user that the update is in progress
+            alert('Creating account, please wait...');
+    
+            const updateResult = await updateUserFile(users);
+    
+            if (updateResult) {
+                console.log('User successfully added:', newUser);
+                const updatedUsers = await fetchUsers();
+                console.log('Updated users list after update:', updatedUsers);
+                const newUserCheck = updatedUsers.some(user => user.username === username && user.password === password);
+                if (newUserCheck) {
+                    alert('Account created and verified successfully. You can now log in.');
+                    window.location.reload(); // Automatically reload the page
+                } else {
+                    alert('Account creation failed. Please try again.');
+                }
+            } else {
+                alert('Failed to update user data. Please try again later.');
+            }
         }
     });
 
@@ -117,7 +139,9 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('New user added:', newUser);
             console.log('Updated users list before update:', users);
     
-            // Update the users.json file on GitHub
+            // Indicate to the user that the update is in progress
+            alert('Creating account, please wait...');
+    
             const updateResult = await updateUserFile(users);
     
             if (updateResult) {
@@ -127,6 +151,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const newUserCheck = updatedUsers.some(user => user.username === username && user.password === password);
                 if (newUserCheck) {
                     alert('Account created and verified successfully. You can now log in.');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 3000); // Automatically reload the page after 3 seconds
                 } else {
                     alert('Account creation failed. Please try again.');
                 }
@@ -135,5 +162,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
 });
