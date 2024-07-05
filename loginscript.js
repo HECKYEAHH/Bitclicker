@@ -4,7 +4,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function fetchUsers() {
         try {
-            const response = await fetch('users.json');
+            const response = await fetch('users.json', {
+                headers: {
+                    'Cache-Control': 'no-cache'
+                }
+            });
             if (!response.ok) {
                 throw new Error('Failed to fetch users');
             }
@@ -17,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return [];
         }
     }
-
     async function updateUserFile(users) {
         let token = localStorage.getItem('GH_TOKEN');
         if (!token) {
@@ -53,12 +56,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             });
     
+            const updateResult = await updateResponse.json();
+            console.log('Update response:', updateResult);
+    
             if (!updateResponse.ok) {
                 throw new Error('Failed to update users.json');
             }
     
-            const updateResult = await updateResponse.json();
-            console.log('Update response:', updateResult);
             return true;
         } catch (error) {
             console.error('Error updating users:', error);
@@ -66,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
     }
+    
 
     loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
