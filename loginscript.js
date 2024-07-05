@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function fetchUsers() {
         try {
-            const response = await fetch(`users.json?timestamp=${new Date().getTime()}`, {
+            const response = await fetch('users.json', {
                 headers: {
                     'Cache-Control': 'no-cache'
                 }
@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return [];
         }
     }
-    
     async function updateUserFile(users) {
         let token = localStorage.getItem('GH_TOKEN');
         if (!token) {
@@ -35,22 +34,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
         const content = btoa(JSON.stringify(users));
         try {
-            // Fetch the SHA of the existing users.json file
             const shaResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
                 headers: {
                     'Authorization': `token ${token}`
                 }
-            });
+            }).then(res => res.json());
     
-            if (!shaResponse.ok) {
-                throw new Error(`Failed to fetch SHA: ${shaResponse.status} ${shaResponse.statusText}`);
-            }
-    
-            const shaData = await shaResponse.json();
-            const sha = shaData.sha;
+            const sha = shaResponse.sha;
             console.log('SHA of users.json:', sha);
     
-            // Update the users.json file with the new content
             const updateResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
                 method: 'PUT',
                 headers: {
@@ -64,64 +56,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             });
     
-            if (!updateResponse.ok) {
-                const errorData = await updateResponse.json();
-                throw new Error(`Failed to update users.json: ${updateResponse.status} ${updateResponse.statusText}. ${errorData.message}`);
-            }
-    
             const updateResult = await updateResponse.json();
             console.log('Update response:', updateResult);
+    
+            if (!updateResponse.ok) {
+                throw new Error('Failed to update users.json');
+            }
+    
             return true;
         } catch (error) {
             console.error('Error updating users:', error);
-            alert(`Error updating user data: ${error.message}`);
+            alert('Error updating user data. Please try again later.');
             return false;
         }
     }
     
-    
 
-    signupForm.addEventListener('submit', async function(event) {
+    loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
-        const username = document.getElementById('signup-username').value.trim();
-        const password = document.getElementById('signup-password').value.trim();
-    
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+
         if (!username || !password) {
             alert('Username and password cannot be empty.');
             return;
         }
-    
+
         const users = await fetchUsers();
-        console.log('Users for signup:', users);
-        const userExists = users.some(user => user.username === username);
-    
-        if (userExists) {
-            alert('Username already exists. Please choose a different username.');
+        console.log('Users for login:', users);
+        const user = users.find(user => user.username === username && user.password === password);
+        console.log('Login user:', user);
+
+        if (user) {
+            localStorage.setItem('username', username);
+            window.location.href = 'idle.html'; // Redirect to the BitClicker game page
         } else {
-            const newUser = { username, password };
-            users.push(newUser);
-            console.log('New user added:', newUser);
-            console.log('Updated users list before update:', users);
-    
-            // Indicate to the user that the update is in progress
-            alert('Creating account, please wait...');
-    
-            const updateResult = await updateUserFile(users);
-    
-            if (updateResult) {
-                console.log('User successfully added:', newUser);
-                const updatedUsers = await fetchUsers();
-                console.log('Updated users list after update:', updatedUsers);
-                const newUserCheck = updatedUsers.some(user => user.username === username && user.password === password);
-                if (newUserCheck) {
-                    alert('Account created and verified successfully. You can now log in.');
-                    window.location.reload(); // Automatically reload the page
-                } else {
-                    alert('Account creation failed. Please try again.');
-                }
-            } else {
-                alert('Failed to update user data. Please try again later.');
-            }
+            alert('Invalid username or password.');
         }
     });
 
@@ -147,9 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('New user added:', newUser);
             console.log('Updated users list before update:', users);
     
-            // Indicate to the user that the update is in progress
-            alert('Creating account, please wait...');
-    
+            // Update the users.json file on GitHub
             const updateResult = await updateUserFile(users);
     
             if (updateResult) {
@@ -159,9 +127,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const newUserCheck = updatedUsers.some(user => user.username === username && user.password === password);
                 if (newUserCheck) {
                     alert('Account created and verified successfully. You can now log in.');
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 3000); // Automatically reload the page after 3 seconds
                 } else {
                     alert('Account creation failed. Please try again.');
                 }
