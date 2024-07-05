@@ -19,14 +19,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function updateUserFile(users) {
-        let token = localStorage.getItem('BITLOCKER_TOKEN');
+        let token = localStorage.getItem('GH_TOKEN');
         if (!token) {
             token = prompt('Please enter your GitHub token to update user data:');
             if (!token) {
                 alert('GitHub token is required to update user data.');
                 return;
             }
-            localStorage.setItem('BITLOCKER_TOKEN', token);
+            localStorage.setItem('GH_TOKEN', token);
         }
     
         const content = btoa(JSON.stringify(users));
@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }).then(res => res.json());
     
             const sha = shaResponse.sha;
+            console.log('SHA of users.json:', sha);
     
             const updateResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
                 method: 'PUT',
@@ -56,12 +57,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Failed to update users.json');
             }
     
+            console.log('Update response:', await updateResponse.json());
             alert('Account created successfully. You can now log in.');
         } catch (error) {
             console.error('Error updating users:', error);
             alert('Error updating user data. Please try again later.');
         }
     }
+    
     
 
     loginForm.addEventListener('submit', async function(event) {
@@ -107,11 +110,25 @@ document.addEventListener('DOMContentLoaded', function() {
             const newUser = { username, password };
             users.push(newUser);
             console.log('New user added:', newUser);
-            console.log('Updated users list:', users);
+            console.log('Updated users list before update:', users);
     
             // Update the users.json file on GitHub
             await updateUserFile(users);
+            
+            // Fetch users again to verify update
+            const updatedUsers = await fetchUsers();
+            console.log('Updated users list after update:', updatedUsers);
+    
+            // Check if the new user is in the updated users list
+            const newUserCheck = updatedUsers.some(user => user.username === username && user.password === password);
+            if (newUserCheck) {
+                alert('Account created and verified successfully. You can now log in.');
+            } else {
+                alert('Account creation failed. Please try again.');
+            }
         }
     });
+    
+    
     
 });
