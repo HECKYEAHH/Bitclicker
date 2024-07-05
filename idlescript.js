@@ -20,6 +20,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let ssdCards = 0;
     let rebirthCost = 1000000; // Initial high cost for rebirth
 
+    // Added variables for statistics
+    let totalClicks = 0;
+    let totalRebirths = 0;
+    let totalUpgrades = 0;
+    let totalBitsObtained = 0;
+    let totalBitsSpent = 0;
+
     const upgrades = [
         createUpgrade('clicker', ".basicbitcost", ".clicker-level", ".clicker-increase", 1.03, 1.12, 10, 1),
         createUpgrade('basicBitFarm', ".basicbitfarm", ".basicbitfarm-level", ".basicbitfarm-increase", 1.03, 1.115, 150, 4),
@@ -189,12 +196,28 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('closeLeaderboard').addEventListener('click', () => {
             document.getElementById('leaderboard').style.display = 'none';
         });
+
+        // Event listeners for stats menu
+        document.getElementById('statsButton').addEventListener('click', () => {
+            document.getElementById('totalClicks').textContent = totalClicks;
+            document.getElementById('totalRebirths').textContent = totalRebirths;
+            document.getElementById('totalUpgrades').textContent = totalUpgrades;
+            document.getElementById('totalBitsObtained').textContent = Math.round(totalBitsObtained);
+            document.getElementById('totalBitsSpent').textContent = Math.round(totalBitsSpent);
+            document.getElementById('statsMenu').style.display = 'flex';
+        });
+
+        document.getElementById('closeStatsMenu').addEventListener('click', () => {
+            document.getElementById('statsMenu').style.display = 'none';
+        });
     }
 
     function handleBitClick(event) {
         parsedBit += bpc;
         bit.innerHTML = Math.round(parsedBit);
         clickCounter++;
+        totalClicks++;
+        totalBitsObtained = Math.round(totalBitsObtained + bpc); // Rounded to whole number
         checkAchievements();
 
         const x = event.offsetX;
@@ -213,6 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function buyUpgrade(upgrade, type) {
         if (parsedBit >= upgrade.parsedCost) {
+            totalBitsSpent = Math.round(totalBitsSpent + upgrade.parsedCost); // Rounded to whole number
             parsedBit -= upgrade.parsedCost;
             bit.innerHTML = Math.round(parsedBit);
 
@@ -231,6 +255,8 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 bps += increase;
             }
+
+            totalUpgrades++;
         }
     }
 
@@ -338,7 +364,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         statsButton.addEventListener('click', () => {
-            alert('Stats clicked! Implement stats logic here.');
+            document.getElementById('totalClicks').textContent = totalClicks;
+            document.getElementById('totalRebirths').textContent = totalRebirths;
+            document.getElementById('totalUpgrades').textContent = totalUpgrades;
+            document.getElementById('totalBitsObtained').textContent = Math.round(totalBitsObtained);
+            document.getElementById('totalBitsSpent').textContent = Math.round(totalBitsSpent);
+            document.getElementById('statsMenu').style.display = 'flex';
+        });
+
+        document.getElementById('closeStatsMenu').addEventListener('click', () => {
+            document.getElementById('statsMenu').style.display = 'none';
         });
     }
 
@@ -353,7 +388,12 @@ document.addEventListener('DOMContentLoaded', () => {
             bpc,
             bps,
             ssdCards,
-            rebirthCost
+            rebirthCost,
+            totalClicks,
+            totalRebirths,
+            totalUpgrades,
+            totalBitsObtained,
+            totalBitsSpent
         };
         localStorage.setItem(`bitClickerSaveSlot${slot}`, JSON.stringify(gameState));
         alert(`Game saved to slot ${slot}`);
@@ -379,6 +419,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ssdCards = state.ssdCards;
             ssdCardsText.innerHTML = ssdCards;
             rebirthCost = state.rebirthCost;
+
+            // Load statistics
+            totalClicks = state.totalClicks || 0;
+            totalRebirths = state.totalRebirths || 0;
+            totalUpgrades = state.totalUpgrades || 0;
+            totalBitsObtained = state.totalBitsObtained || 0;
+            totalBitsSpent = state.totalBitsSpent || 0;
+
             alert(`Game loaded from slot ${slot}`);
         } else {
             alert(`No save found in slot ${slot}`);
@@ -413,6 +461,13 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('bitClickerGameState');
             alert('Progress reset!');
         }
+
+        // Reset statistics
+        totalClicks = 0;
+        totalRebirths = 0;
+        totalUpgrades = 0;
+        totalBitsObtained = 0;
+        totalBitsSpent = 0;
     }
 
     function toggleAutosave() {
@@ -442,6 +497,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset game state (except SSD Cards)
         resetProgress(false);
 
+        totalRebirths++;
+
         alert('Rebirth successful! You earned an SSD Card.');
     }
 
@@ -465,6 +522,13 @@ document.addEventListener('DOMContentLoaded', () => {
             ssdCards = state.ssdCards;
             ssdCardsText.innerHTML = ssdCards;
             rebirthCost = state.rebirthCost;
+
+            // Load statistics
+            totalClicks = state.totalClicks || 0;
+            totalRebirths = state.totalRebirths || 0;
+            totalUpgrades = state.totalUpgrades || 0;
+            totalBitsObtained = state.totalBitsObtained || 0;
+            totalBitsSpent = state.totalBitsSpent || 0;
         }
     }
 
@@ -480,7 +544,12 @@ document.addEventListener('DOMContentLoaded', () => {
             bpc,
             bps,
             ssdCards,
-            rebirthCost
+            rebirthCost,
+            totalClicks,
+            totalRebirths,
+            totalUpgrades,
+            totalBitsObtained,
+            totalBitsSpent
         };
         exportTextarea.value = JSON.stringify(gameState);
     }
@@ -504,6 +573,14 @@ document.addEventListener('DOMContentLoaded', () => {
             ssdCards = state.ssdCards;
             ssdCardsText.innerHTML = ssdCards;
             rebirthCost = state.rebirthCost;
+
+            // Load statistics
+            totalClicks = state.totalClicks || 0;
+            totalRebirths = state.totalRebirths || 0;
+            totalUpgrades = state.totalUpgrades || 0;
+            totalBitsObtained = state.totalBitsObtained || 0;
+            totalBitsSpent = state.totalBitsSpent || 0;
+
             alert('Game state imported successfully!');
             importMenu.style.display = 'none';
         } catch (error) {
