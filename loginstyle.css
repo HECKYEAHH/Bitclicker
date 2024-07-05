@@ -1,3 +1,4 @@
+/* Add necessary styling for login and sign-up forms */
 html {
   height: 100%;
   width: 100%;
@@ -12,19 +13,24 @@ h1 {
   font-family: Georgia, serif;
   font-size: 4.5em;
   text-align: center;
-  margin-top: 275px;
+  margin-top: 100px;
   background-color: black;
   border: 2px solid white;
   padding: 10px;
 }
 
+div {
+  text-align: center;
+  margin: 20px auto;
+  width: 300px;
+  background-color: black;
+  border: 2px solid white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
 form {
   text-align: center;
-  margin-top: 20px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
 }
 
 label {
