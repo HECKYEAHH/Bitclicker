@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) {
                 throw new Error('Failed to fetch users');
             }
-            return await response.json();
+            const users = await response.json();
+            console.log('Fetched users:', users);
+            return users;
         } catch (error) {
             console.error('Error fetching users:', error);
             alert('Error fetching user data. Please try again later.');
@@ -17,50 +19,64 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function updateUserFile(users) {
-        const token = localStorage.getItem('GH_TOKEN');
+        let token = localStorage.getItem('GH_TOKEN');
         if (!token) {
-            const newToken = prompt('Please enter your GitHub token to update user data:');
-            if (!newToken) {
+            token = prompt('Please enter your GitHub token to update user data:');
+            if (!token) {
                 alert('GitHub token is required to update user data.');
                 return;
             }
-            localStorage.setItem('GH_TOKEN', newToken);
+            localStorage.setItem('GH_TOKEN', token);
         }
-    
-        const usersBase64 = btoa(JSON.stringify(users));
-        const workflowUrl = 'https://api.github.com/repos/HECKYEAHH/Bitclicker/actions/workflows/update-users.yml/dispatches';
-        
+
+        const content = btoa(JSON.stringify(users));
         try {
-            const response = await fetch(workflowUrl, {
-                method: 'POST',
+            const shaResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
+                headers: {
+                    'Authorization': `token ${token}`
+                }
+            }).then(res => res.json());
+
+            const sha = shaResponse.sha;
+
+            const updateResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
+                method: 'PUT',
                 headers: {
                     'Authorization': `token ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    ref: 'main',
-                    inputs: {
-                        users: usersBase64
-                    }
+                    message: 'Add new user',
+                    content: content,
+                    sha: sha
                 })
             });
-    
-            if (!response.ok) {
-                throw new Error('Failed to trigger GitHub Action');
+
+            if (!updateResponse.ok) {
+                throw new Error('Failed to update users.json');
             }
+
+            alert('Account created successfully. You can now log in.');
         } catch (error) {
-            console.error('Error triggering GitHub Action:', error);
+            console.error('Error updating users:', error);
             alert('Error updating user data. Please try again later.');
         }
     }
 
     loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
-        const username = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+
+        if (!username || !password) {
+            alert('Username and password cannot be empty.');
+            return;
+        }
 
         const users = await fetchUsers();
+        console.log('Users for login:', users);
         const user = users.find(user => user.username === username && user.password === password);
+        console.log('Login user:', user);
 
         if (user) {
             localStorage.setItem('username', username);
@@ -72,15 +88,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     signupForm.addEventListener('submit', async function(event) {
         event.preventDefault();
-        const username = document.getElementById('signup-username').value;
-        const password = document.getElementById('signup-password').value;
+        const username = document.getElementById('signup-username').value.trim();
+        const password = document.getElementById('signup-password').value.trim();
 
-        if (username === '' || password === '') {
+        if (!username || !password) {
             alert('Username and password cannot be empty.');
             return;
         }
 
         const users = await fetchUsers();
+        console.log('Users for signup:', users);
         const userExists = users.some(user => user.username === username);
 
         if (userExists) {
@@ -88,11 +105,11 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             const newUser = { username, password };
             users.push(newUser);
+            console.log('New user added:', newUser);
+            console.log('Updated users list:', users);
 
             // Update the users.json file on GitHub
             await updateUserFile(users);
-
-            alert('Account created successfully. You can now log in.');
         }
     });
 });
