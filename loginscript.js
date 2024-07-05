@@ -3,29 +3,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const signupForm = document.getElementById('user-signup-form');
 
     async function fetchUsers() {
-        const response = await fetch('users.json');
-        return response.json();
+        try {
+            const response = await fetch('users.json');
+            if (!response.ok) {
+                throw new Error('Failed to fetch users');
+            }
+            return await response.json();
+        } catch (error) {
+            console.error('Error fetching users:', error);
+            alert('Error fetching user data. Please try again later.');
+            return [];
+        }
     }
 
     async function updateUserFile(users) {
         const token = prompt('Please enter your GitHub token to update user data:');
+        if (!token) {
+            alert('GitHub token is required to update user data.');
+            return;
+        }
+        
         const content = btoa(JSON.stringify(users));
-        const shaResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json')
-            .then(res => res.json());
-        const sha = shaResponse.sha;
+        try {
+            const shaResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json')
+                .then(res => res.json());
+            const sha = shaResponse.sha;
 
-        await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
-            method: 'PUT',
-            headers: {
-                'Authorization': `token ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                message: 'Add new user',
-                content: content,
-                sha: sha
-            })
-        });
+            const updateResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: 'Add new user',
+                    content: content,
+                    sha: sha
+                })
+            });
+
+            if (!updateResponse.ok) {
+                throw new Error('Failed to update users.json');
+            }
+        } catch (error) {
+            console.error('Error updating users:', error);
+            alert('Error updating user data. Please try again later.');
+        }
     }
 
     loginForm.addEventListener('submit', async function(event) {
@@ -48,6 +71,11 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         const username = document.getElementById('signup-username').value;
         const password = document.getElementById('signup-password').value;
+
+        if (username === '' || password === '') {
+            alert('Username and password cannot be empty.');
+            return;
+        }
 
         const users = await fetchUsers();
         const userExists = users.some(user => user.username === username);
