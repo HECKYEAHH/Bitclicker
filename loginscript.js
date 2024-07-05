@@ -35,15 +35,22 @@ document.addEventListener('DOMContentLoaded', function() {
     
         const content = btoa(JSON.stringify(users));
         try {
+            // Fetch the SHA of the existing users.json file
             const shaResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
                 headers: {
                     'Authorization': `token ${token}`
                 }
-            }).then(res => res.json());
+            });
     
-            const sha = shaResponse.sha;
+            if (!shaResponse.ok) {
+                throw new Error(`Failed to fetch SHA: ${shaResponse.status} ${shaResponse.statusText}`);
+            }
+    
+            const shaData = await shaResponse.json();
+            const sha = shaData.sha;
             console.log('SHA of users.json:', sha);
     
+            // Update the users.json file with the new content
             const updateResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
                 method: 'PUT',
                 headers: {
@@ -57,20 +64,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             });
     
-            const updateResult = await updateResponse.json();
-            console.log('Update response:', updateResult);
-    
             if (!updateResponse.ok) {
-                throw new Error('Failed to update users.json');
+                const errorData = await updateResponse.json();
+                throw new Error(`Failed to update users.json: ${updateResponse.status} ${updateResponse.statusText}. ${errorData.message}`);
             }
     
+            const updateResult = await updateResponse.json();
+            console.log('Update response:', updateResult);
             return true;
         } catch (error) {
             console.error('Error updating users:', error);
-            alert('Error updating user data. Please try again later.');
+            alert(`Error updating user data: ${error.message}`);
             return false;
         }
     }
+    
     
 
     signupForm.addEventListener('submit', async function(event) {
@@ -162,4 +170,5 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    
 });
