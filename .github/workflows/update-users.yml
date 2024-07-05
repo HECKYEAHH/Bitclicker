@@ -1,0 +1,27 @@
+name: Update Users
+
+on:
+  workflow_dispatch:
+    inputs:
+      users:
+        description: 'Updated users JSON'
+        required: true
+
+jobs:
+  update-users:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Update users.json
+      run: |
+        echo ${{ github.event.inputs.users }} | base64 --decode > users.json
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add users.json
+        git commit -m 'Update users.json via GitHub Actions'
+        git push
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}

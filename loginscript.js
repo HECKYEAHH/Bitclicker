@@ -17,36 +17,39 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function updateUserFile(users) {
-        const token = prompt('Please enter your GitHub token to update user data:');
+        const token = localStorage.getItem('GH_TOKEN');
         if (!token) {
-            alert('GitHub token is required to update user data.');
-            return;
+            const newToken = prompt('Please enter your GitHub token to update user data:');
+            if (!newToken) {
+                alert('GitHub token is required to update user data.');
+                return;
+            }
+            localStorage.setItem('GH_TOKEN', newToken);
         }
+    
+        const usersBase64 = btoa(JSON.stringify(users));
+        const workflowUrl = 'https://api.github.com/repos/HECKYEAHH/Bitclicker/actions/workflows/update-users.yml/dispatches';
         
-        const content = btoa(JSON.stringify(users));
         try {
-            const shaResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json')
-                .then(res => res.json());
-            const sha = shaResponse.sha;
-
-            const updateResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
-                method: 'PUT',
+            const response = await fetch(workflowUrl, {
+                method: 'POST',
                 headers: {
                     'Authorization': `token ${token}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    message: 'Add new user',
-                    content: content,
-                    sha: sha
+                    ref: 'main',
+                    inputs: {
+                        users: usersBase64
+                    }
                 })
             });
-
-            if (!updateResponse.ok) {
-                throw new Error('Failed to update users.json');
+    
+            if (!response.ok) {
+                throw new Error('Failed to trigger GitHub Action');
             }
         } catch (error) {
-            console.error('Error updating users:', error);
+            console.error('Error triggering GitHub Action:', error);
             alert('Error updating user data. Please try again later.');
         }
     }
