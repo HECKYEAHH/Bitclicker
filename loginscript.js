@@ -19,16 +19,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function updateUserFile(users) {
-        let token = localStorage.getItem('GH_TOKEN');
+        let token = localStorage.getItem('BITLOCKER_TOKEN');
         if (!token) {
             token = prompt('Please enter your GitHub token to update user data:');
             if (!token) {
                 alert('GitHub token is required to update user data.');
                 return;
             }
-            localStorage.setItem('GH_TOKEN', token);
+            localStorage.setItem('BITLOCKER_TOKEN', token);
         }
-
+    
         const content = btoa(JSON.stringify(users));
         try {
             const shaResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
@@ -36,9 +36,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Authorization': `token ${token}`
                 }
             }).then(res => res.json());
-
+    
             const sha = shaResponse.sha;
-
+    
             const updateResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
                 method: 'PUT',
                 headers: {
@@ -51,17 +51,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     sha: sha
                 })
             });
-
+    
             if (!updateResponse.ok) {
                 throw new Error('Failed to update users.json');
             }
-
+    
             alert('Account created successfully. You can now log in.');
         } catch (error) {
             console.error('Error updating users:', error);
             alert('Error updating user data. Please try again later.');
         }
     }
+    
 
     loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
@@ -90,16 +91,16 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         const username = document.getElementById('signup-username').value.trim();
         const password = document.getElementById('signup-password').value.trim();
-
+    
         if (!username || !password) {
             alert('Username and password cannot be empty.');
             return;
         }
-
+    
         const users = await fetchUsers();
         console.log('Users for signup:', users);
         const userExists = users.some(user => user.username === username);
-
+    
         if (userExists) {
             alert('Username already exists. Please choose a different username.');
         } else {
@@ -107,9 +108,10 @@ document.addEventListener('DOMContentLoaded', function() {
             users.push(newUser);
             console.log('New user added:', newUser);
             console.log('Updated users list:', users);
-
+    
             // Update the users.json file on GitHub
             await updateUserFile(users);
         }
     });
+    
 });
