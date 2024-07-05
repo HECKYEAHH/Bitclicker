@@ -1,0 +1,64 @@
+name: Update Leaderboard
+
+on:
+  workflow_dispatch:
+    inputs:
+      username:
+        description: 'Username'
+        required: true
+        default: ''
+      totalEarnings:
+        description: 'Total Earnings'
+        required: true
+        default: 0
+      totalClicks:
+        description: 'Total Clicks'
+        required: true
+        default: 0
+      totalRebirths:
+        description: 'Total Rebirths'
+        required: true
+        default: 0
+      totalUpgrades:
+        description: 'Total Upgrades'
+        required: true
+        default: 0
+
+jobs:
+  update-leaderboard:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Update leaderboard
+      run: |
+        username=${{ github.event.inputs.username }}
+        totalEarnings=${{ github.event.inputs.totalEarnings }}
+        totalClicks=${{ github.event.inputs.totalClicks }}
+        totalRebirths=${{ github.event.inputs.totalRebirths }}
+        totalUpgrades=${{ github.event.inputs.totalUpgrades }}
+
+        leaderboard_file="leaderboard.json"
+        temp_file="temp_leaderboard.json"
+
+        jq --arg username "$username" \
+           --argjson totalEarnings "$totalEarnings" \
+           --argjson totalClicks "$totalClicks" \
+           --argjson totalRebirths "$totalRebirths" \
+           --argjson totalUpgrades "$totalUpgrades" \
+           'map(select(.username != $username)) + [{"username": $username, "totalEarnings": $totalEarnings, "totalClicks": $totalClicks, "totalRebirths": $totalRebirths, "totalUpgrades": $totalUpgrades}] | sort_by(-.totalEarnings)' \
+           "$leaderboard_file" > "$temp_file"
+
+        mv "$temp_file" "$leaderboard_file"
+
+    - name: Commit and push changes
+      env:
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add leaderboard.json
+        git commit -m 'Update leaderboard'
+        git push https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git
