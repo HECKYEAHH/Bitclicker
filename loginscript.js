@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return [];
         }
     }
-    // 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
+    
     async function updateUserFile(users) {
         let token = localStorage.getItem('GH_TOKEN');
         if (!token) {
