@@ -24,4 +24,4 @@ jobs:
         git commit -m 'Update users.json via GitHub Actions'
         git push
       env:
-        GH_TOKEN: ${{ secrets.BITCLICKER_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
