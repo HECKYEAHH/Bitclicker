@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             localStorage.setItem('GH_TOKEN', token);
         }
-    
+
         const content = btoa(JSON.stringify(users));
         try {
             const shaResponse = await fetch('https://cors-anywhere.herokuapp.com/https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
@@ -40,14 +40,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Authorization': `token ${token}`
                 }
             }).then(res => res.json());
-    
+
             if (!shaResponse.sha) {
                 throw new Error('Failed to get SHA of users.json');
             }
-    
+
             const sha = shaResponse.sha;
             console.log('SHA of users.json:', sha);
-    
+
             const updateResponse = await fetch('https://cors-anywhere.herokuapp.com/https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
                 method: 'PUT',
                 headers: {
@@ -60,14 +60,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     sha: sha
                 })
             });
-    
+
             const updateResult = await updateResponse.json();
             console.log('Update response:', updateResult);
-    
+
             if (!updateResponse.ok) {
                 throw new Error('Failed to update users.json');
             }
-    
+
             return true;
         } catch (error) {
             console.error('Error updating users:', error);
@@ -75,8 +75,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
     }
-    
-    
 
     loginForm.addEventListener('submit', async function(event) {
         event.preventDefault();
@@ -141,5 +139,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-    
 });
