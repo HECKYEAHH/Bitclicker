@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function fetchUsers() {
         try {
-            const response = await fetch('users.json', {
+            const response = await fetch('https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/HECKYEAHH/Bitclicker/main/users.json', {
                 headers: {
                     'Cache-Control': 'no-cache'
                 }
@@ -35,16 +35,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
         const content = btoa(JSON.stringify(users));
         try {
-            const shaResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
+            const shaResponse = await fetch('https://cors-anywhere.herokuapp.com/https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
                 headers: {
                     'Authorization': `token ${token}`
                 }
             }).then(res => res.json());
     
+            if (!shaResponse.sha) {
+                throw new Error('Failed to get SHA of users.json');
+            }
+    
             const sha = shaResponse.sha;
             console.log('SHA of users.json:', sha);
     
-            const updateResponse = await fetch('https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
+            const updateResponse = await fetch('https://cors-anywhere.herokuapp.com/https://api.github.com/repos/HECKYEAHH/Bitclicker/contents/users.json', {
                 method: 'PUT',
                 headers: {
                     'Authorization': `token ${token}`,
@@ -71,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
     }
+    
     
 
     loginForm.addEventListener('submit', async function(event) {
